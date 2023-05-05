@@ -3,7 +3,6 @@ package template
 import (
 	"bytes"
 	"encoding/json"
-	"strings"
 	"text/template"
 
 	"github.com/Masterminds/sprig"
@@ -22,28 +21,27 @@ func (t *Template) Validate() error {
 }
 
 // Render renders the template with the provided data.
-func (t *Template) Render(data map[string]any) (string, error) {
+func (t *Template) Render(data map[string]any) (map[string]any, error) {
 	contentBytes, err := json.Marshal(t.Content)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	contentString := string(contentBytes)
 
-	tmpl, err := template.New(t.Name).Funcs(sprig.TxtFuncMap()).Parse(contentString)
+	tmpl, err := template.New(t.Name).Delims("[[", "]]").Funcs(sprig.TxtFuncMap()).Parse(contentString)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	var buf bytes.Buffer
 	if err := tmpl.Execute(&buf, data); err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return buf.String(), nil
-}
+	var result map[string]any
+	if err := json.Unmarshal(buf.Bytes(), &result); err != nil {
+		return nil, err
+	}
 
-func replaceCustomTags(content string) string {
-	replacedContent := strings.ReplaceAll(content, "{%", "{{")
-	replacedContent = strings.ReplaceAll(replacedContent, "%}", "}}")
-	return replacedContent
+	return result, nil
 }

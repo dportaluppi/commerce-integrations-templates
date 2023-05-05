@@ -6,7 +6,7 @@ package template
 type Service interface {
 	Create(name string, content map[string]any) (*Template, error)
 	Get(name string) (*Template, error)
-	Render(name string, data map[string]interface{}) (string, error)
+	Render(name string, data map[string]any) (map[string]any, error)
 }
 
 type service struct {
@@ -42,10 +42,10 @@ func (s *service) Get(name string) (*Template, error) {
 }
 
 // Render renders a template with the provided data.
-func (s *service) Render(name string, data map[string]interface{}) (string, error) {
+func (s *service) Render(name string, data map[string]any) (map[string]any, error) {
 	t, err := s.repo.FindByName(name)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	return t.Render(data)

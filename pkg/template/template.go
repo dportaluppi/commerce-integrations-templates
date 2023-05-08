@@ -16,7 +16,7 @@ type Template struct {
 
 // Validate validates the template entity.
 func (t *Template) Validate() error {
-	// Add any custom validation logic here.
+	// TODO: Add any custom validation logic here.
 	return nil
 }
 

@@ -4,4 +4,5 @@ package template
 type Repository interface {
 	Save(*Template) error
 	FindByName(string) (*Template, error)
+	Delete(*Template) error
 }

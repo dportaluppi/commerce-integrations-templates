@@ -40,3 +40,16 @@ func (r *Repository) FindByName(name string) (*template.Template, error) {
 
 	return t, nil
 }
+
+func (r *Repository) Delete(t *template.Template) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	_, ok := r.templates[t.Name]
+	if !ok {
+		return template.ErrTemplateNotFound
+	}
+
+	delete(r.templates, t.Name)
+	return nil
+}

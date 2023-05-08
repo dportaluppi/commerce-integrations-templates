@@ -1,19 +1,22 @@
 package main
 
 import (
+	"github.com/dportaluppi/commerce-integrations-templates/internal/config"
 	"github.com/dportaluppi/commerce-integrations-templates/internal/handlers"
 	"github.com/dportaluppi/commerce-integrations-templates/internal/mongodb"
 	"github.com/dportaluppi/commerce-integrations-templates/pkg/template"
 	"github.com/gin-gonic/gin"
 )
 
-const (
-	mongoURI = "mongodb://localhost:27017"
-)
-
 func main() {
+	// Load configuration
+	cfg, err := config.Load()
+	if err != nil {
+		panic(err)
+	}
+
 	// repo := inmemory.NewRepository()
-	repo, err := mongodb.NewRepository(mongoURI)
+	repo, err := mongodb.NewRepository(cfg.MongoURI)
 	if err != nil {
 		panic(err)
 	}

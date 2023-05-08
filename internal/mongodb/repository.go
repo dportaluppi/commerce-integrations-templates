@@ -2,6 +2,7 @@ package mongodb
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/dportaluppi/commerce-integrations-templates/pkg/template"
@@ -11,7 +12,7 @@ import (
 )
 
 const (
-	databaseName   = "commerce_integrations_templates"
+	databaseName   = "commerce-integrations-templates"
 	collectionName = "templates"
 	timeout        = 10 * time.Second
 )
@@ -22,9 +23,22 @@ type Repository struct {
 }
 
 func NewRepository(mongoURI string) (*Repository, error) {
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(mongoURI))
+	clientOptions := options.Client().ApplyURI(mongoURI)
+
+	// Add a timeout to the connection attempt
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Connect to MongoDB
+	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to connect to MongoDB: %w", err)
+	}
+
+	// Ping MongoDB to check if the connection is valid
+	err = client.Ping(ctx, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to ping MongoDB: %w", err)
 	}
 
 	collection := client.Database(databaseName).Collection(collectionName)
